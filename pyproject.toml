@@ -2,8 +2,12 @@
 name = "snack"
 version = "0.1.0"
 requires-python = ">=3.13"
+dependencies = ["pygame-ce>=2.5.5"]
 
 [tool.ruff]
 line-length = 100
 lint.select = ["ALL"]
-lint.ignore = ["D"]
+lint.ignore = ["D", "PLR2004"]
+
+[tool.pyright]
+reportUnusedCallResult = "none"
