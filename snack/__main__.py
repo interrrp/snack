@@ -64,9 +64,14 @@ class Emulator:
         self._beep = pygame.Sound("beep.wav")
         self._is_beeping = False
 
+        self._timer_accum = 0
+
     def run(self) -> None:
+        clock = pygame.Clock()
         running = True
         while running:
+            dt = clock.tick() / 1000
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -76,32 +81,28 @@ class Emulator:
                     self._on_key(cast("int", event.key), down=False)
 
             for _ in range(self._ipf):
-                self._cycle()
+                self._do_instruction()
+            self._update_timers(dt)
 
             self._screen.blit(pygame.transform.scale(self._surface, self._real_screen_size))
             pygame.display.flip()
 
-    def _cycle(self) -> None:
-        if self._update_timers():
-            return
-        self._do_instruction()
+    def _update_timers(self, dt: float) -> None:
+        self._timer_accum += dt
 
-    def _update_timers(self) -> bool:
-        if self._delay_timer == 0 and self._sound_timer == 0:
-            return False
+        while self._timer_accum >= 1 / 60:
+            if self._delay_timer > 0:
+                self._delay_timer -= 1
 
-        if self._delay_timer > 0:
-            self._delay_timer -= 1
+            if self._sound_timer > 0:
+                if not self._is_beeping:
+                    self._beep.play()
+                    self._is_beeping = True
+                self._sound_timer -= 1
+                if self._sound_timer <= 0:
+                    self._is_beeping = False
 
-        if self._sound_timer > 0:
-            if not self._is_beeping:
-                self._beep.play()
-                self._is_beeping = True
-            self._sound_timer -= 1
-            if self._sound_timer <= 0:
-                self._is_beeping = False
-
-        return True
+            self._timer_accum -= 1 / 60
 
     def _do_instruction(self) -> None:  # noqa: C901, PLR0912, PLR0915
         opcode, op, x, y, n, nn, nnn = self._fetch()
