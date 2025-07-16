@@ -195,12 +195,12 @@ class Emulator:
                         if (sprite >> (7 - bit)) & 1:
                             px = (vx + bit) % 64
                             py = (vy + row) % 32
-                            color = self._surface.get_at((px, py)) != pygame.Color("black")
-                            if color:
+                            inactive = self._surface.get_at((px, py)) != pygame.Color("black")
+                            if inactive:
                                 self._registers[0xF] = 1
                             self._surface.set_at(
                                 (px, py),
-                                pygame.Color("black") if color else pygame.Color("white"),
+                                "black" if inactive else "white",
                             )
 
             case 0xE if nn == 0x9E:
