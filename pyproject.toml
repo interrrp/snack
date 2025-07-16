@@ -1,0 +1,9 @@
+[project]
+name = "snack"
+version = "0.1.0"
+requires-python = ">=3.13"
+
+[tool.ruff]
+line-length = 100
+lint.select = ["ALL"]
+lint.ignore = ["D"]
