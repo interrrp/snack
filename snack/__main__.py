@@ -61,6 +61,9 @@ class Emulator:
         self._screen = pygame.display.set_mode(self._real_screen_size, vsync=1)
         pygame.display.set_caption(title)
 
+        self._beep = pygame.Sound("beep.wav")
+        self._is_beeping = False
+
     def run(self) -> None:
         running = True
         while running:
@@ -91,7 +94,12 @@ class Emulator:
             self._delay_timer -= 1
 
         if self._sound_timer > 0:
+            if not self._is_beeping:
+                self._beep.play()
+                self._is_beeping = True
             self._sound_timer -= 1
+            if self._sound_timer <= 0:
+                self._is_beeping = False
 
         return True
 
